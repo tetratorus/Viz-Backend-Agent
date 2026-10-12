@@ -1100,7 +1100,7 @@ These read-only routes proxy an [sg-urban-spine](https://github.com/tetratorus/s
 
 - `GET <baseURL>/vis-backend-agent/spine/collections`: lists the Silver and Gold collections
 - `GET <baseURL>/vis-backend-agent/spine/scenarios`: lists the spine scenarios, e.g. `{"scenarios": ["baseline", "rezone_p1"]}`
-- `GET <baseURL>/vis-backend-agent/spine/collections/{id}/items?scenario={scenario}&limit={limit}`: returns the GeoJSON `FeatureCollection` (EPSG:4326) of a `silver.*` or `gold.*` collection. `scenario` defaults to `baseline`; `limit` is optional (1-100000). Each feature whose hub key (`plot_id`, `building_id`, `district_id`, `road_id`, `station_id`, `cell_id`) is mapped in the Silver `id_bridge` to the `SPINE_IRI_SOURCE` source receives that KG IRI as its `iri` property, so the viz can still query the KG for these features
+- `GET <baseURL>/vis-backend-agent/spine/collections/{id}/items?scenario={scenario}&limit={limit}`: returns the GeoJSON `FeatureCollection` (EPSG:4326) of a `silver.<table>` or `gold.<transform_id>.<table>` collection (e.g. `gold.example.plot_capacity.plot_capacity`). `scenario` defaults to `baseline`; `limit` is optional (1-100000). Each feature whose hub key (`plot_id`, `building_id`, `district_id`, `road_id`, `station_id`, `cell_id`) is mapped in the Silver `id_bridge` to the `SPINE_IRI_SOURCE` source receives that KG IRI as its `iri` property, so the viz can still query the KG for these features
 - `GET <baseURL>/vis-backend-agent/spine/lineage/{scenario}/{transformId}`: returns the OpenLineage run event of a Gold publish
 
 Invalid identifiers return `400`, unknown collections `404`, an unreachable spine `502`, and a missing `SPINE_URL` `503`, all in the standard error format.

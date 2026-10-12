@@ -128,6 +128,7 @@ class SpineControllerTest {
   void rejectsNonGoldOrSilverCollectionsAndBadScenarios() throws Exception {
     this.mvc().perform(get("/spine/collections/bronze.raw/items")).andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.error.code").value(400));
+    this.mvc().perform(get("/spine/collections/gold.unknown/items")).andExpect(status().isBadRequest());
     this.mvc().perform(get("/spine/collections/" + GOLD + "/items").param("scenario", "a&b=c"))
         .andExpect(status().isBadRequest());
     this.mvc().perform(get("/spine/collections/" + GOLD + "/items").param("limit", "0"))
@@ -137,7 +138,7 @@ class SpineControllerTest {
 
   @Test
   void unknownCollectionIsNotFound() throws Exception {
-    this.mvc().perform(get("/spine/collections/gold.missing.table/items")).andExpect(status().isNotFound())
+    this.mvc().perform(get("/spine/collections/gold.example.missing.table/items")).andExpect(status().isNotFound())
         .andExpect(jsonPath("$.error.code").value(404));
   }
 

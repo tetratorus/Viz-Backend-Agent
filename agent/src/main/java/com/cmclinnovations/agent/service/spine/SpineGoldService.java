@@ -34,7 +34,7 @@ public class SpineGoldService {
 
   static final String ID_BRIDGE_COLLECTION = "silver.id_bridge";
   private static final String[] HUB_KEYS = { "plot", "building", "district", "road", "station", "cell" };
-  private static final Pattern COLLECTION_ID = Pattern.compile("^(silver|gold)(\\.[a-z0-9_]+)+$");
+  private static final Pattern COLLECTION_ID = Pattern.compile("^(silver\\.[a-z0-9_]+|gold(\\.[a-z0-9_]+){3,})$");
   private static final Pattern SCENARIO_ID = Pattern.compile("^[A-Za-z0-9_-]{1,64}$");
   private static final Pattern TRANSFORM_ID = Pattern.compile("^[a-z0-9_]+(\\.[a-z0-9_]+)+$");
   private static final int MAX_LIMIT = 100000;
