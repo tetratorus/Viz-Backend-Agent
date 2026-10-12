@@ -1,5 +1,9 @@
 # Change Log
 
+# 1.73.0
+
+- Added read-only `/spine` routes that proxy [sg-urban-spine](https://github.com/tetratorus/sg-urban-spine) `spine serve` (OGC API Features) Gold collections, scenarios and lineage, adding KG `iri`s from the Silver `id_bridge`
+
 # 1.72.1
 
 - Extended concept route to return single class as an option

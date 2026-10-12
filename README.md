@@ -50,6 +50,7 @@ All notable changes to this agent are documented in the `CHANGELOG.md` file. Ple
       - [2.7.3 Invoice route](#273-invoice-route)
       - [2.7.3.1 Add invoice](#2731-add-invoice)
     - [2.8 Filter Query Parameters](#28-filter-query-parameters)
+    - [2.9 Spine Gold Route: `<baseURL>/vis-backend-agent/spine`](#29-spine-gold-route-baseurlvis-backend-agentspine)
 
 ## 1. Agent Deployment
 
@@ -89,6 +90,8 @@ The agent requires the following environment variables. These variables must be 
 - `SHACL_NAMESPACE`: Specifies the SPARQL namespace identifier containing the SHACL restrictions; Note that the agent requires SHACL restrictions to be stored in a separate namespace from other data (default: shacl)
 - `TASKS_ENABLED`: Specifies if scheduled tasks must be executed. This is tentatively required only for lifecycle related tasks (default: false)
 - `REDIS`: The redis endpoint. Redis must be running to support the caching function of this agent. Format: `redis://<url>`; If redis is deployed within the same stack, `<url>` may be `<STACK>-redis:6379`
+- `SPINE_URL`: Optional base URL of an [sg-urban-spine](https://github.com/tetratorus/sg-urban-spine) `spine serve` instance (e.g. `http://spine:8090`) to enable the [spine routes](#29-spine-gold-route-baseurlvis-backend-agentspine); the routes return `503` if unset
+- `SPINE_IRI_SOURCE`: Optional `source` value in the spine Silver `id_bridge` whose `source_id`s are KG IRIs (default: twa_kg)
 - `KEYCLOAK_ISSUER_URI`: Optional parameter to enable web security via Keycloak. Format: `http://<DOMAIN>/realms/<REALM>`; To disable, either set an empty string or remove the variable entirely
 
 ##### Docker secrets
@@ -1090,3 +1093,14 @@ Users can apply filters by appending query parameters to the URL:
 - **Date ranges**: `field=YYYY-MM-DD..YYYY-MM-DD` - use the same date for both bounds to filter by a single day
 - **Single numeric fields**: `field=operatorVal` - expressions using operator and value eg `gt50.00`; valid operators include `eq`(equals), `neq`(not equals), `gt`(greater than), `gte`(greater than or equal to), `lt`(less than), and `lte`(less than or equal to)
 - **Multiple numeric fields**: `field=operatorVal&operatorVal2` - separate multiple values using the ampersand (&) delimiter
+
+### 2.9 Spine Gold Route: `<baseURL>/vis-backend-agent/spine`
+
+These read-only routes proxy an [sg-urban-spine](https://github.com/tetratorus/sg-urban-spine) `spine serve` instance configured by `SPINE_URL`, so that the viz can load scenario Gold layers from the same origin as its KG routes. They follow the spine's OGC API Features contract; the agent never calls a model directly.
+
+- `GET <baseURL>/vis-backend-agent/spine/collections`: lists the Silver and Gold collections
+- `GET <baseURL>/vis-backend-agent/spine/scenarios`: lists the spine scenarios, e.g. `{"scenarios": ["baseline", "rezone_p1"]}`
+- `GET <baseURL>/vis-backend-agent/spine/collections/{id}/items?scenario={scenario}&limit={limit}`: returns the GeoJSON `FeatureCollection` (EPSG:4326) of a `silver.<table>` or `gold.<transform_id>.<table>` collection (e.g. `gold.example.plot_capacity.plot_capacity`). `scenario` defaults to `baseline`; `limit` is optional (1-100000). Each feature whose hub key (`plot_id`, `building_id`, `district_id`, `road_id`, `station_id`, `cell_id`) is mapped in the Silver `id_bridge` to the `SPINE_IRI_SOURCE` source receives that KG IRI as its `iri` property, so the viz can still query the KG for these features
+- `GET <baseURL>/vis-backend-agent/spine/lineage/{scenario}/{transformId}`: returns the OpenLineage run event of a Gold publish
+
+Invalid identifiers return `400`, unknown collections `404`, an unreachable spine `502`, and a missing `SPINE_URL` `503`, all in the standard error format.
